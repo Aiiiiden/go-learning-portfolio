@@ -31,9 +31,16 @@ func (p Palm) CalculateActualYield() int {
 	return actualYield
 }
 
-func (p *Palm) Water() {
-	p.Health += 10
-	fmt.Printf("Вы полили сорт %s. Здоровье теперь %d%%\n", p.Type, p.Health)
+func (p *Palm) Water(balans *int) {
+	if *balans >= 50 {
+		*balans -= 50 
+		p.Health += 10
+		fmt.Printf("Вы полили %s за 50 руб. Здоровье: %d%%, Остаток:%d руб\n", p.Type, p.Health, *balans)
+	} else {
+		fmt.Printf("!!!Не хватает денег для полива %s (нужно 50, у вас %d)\n", p.Type, *balans)
+	}
+	
+
 }
 
 // PassYear симулирует прохождение одного года в саду
@@ -50,8 +57,12 @@ func PassYear(garden []Palm) {
 }
 
 func main() {
-	fmt.Println("--- Добро пожаловать в твой Сад в Медине ---")
 
+	balans := 0
+	pricePerKg := 10
+	
+	fmt.Println("--- Добро пожаловать в твой Сад в Медине ---")
+	
 	//создаем начальный сад
 	myGarden := []Palm{
 		{Type: "Меджул", Yield: 50, Health: 80, Age: 6},
@@ -75,25 +86,30 @@ func main() {
 		if myGarden[i].Health < 50 {
 			fmt.Printf("!!! Дерево %s ослабло (Health: %d%%). Срочно поливаем!\n",
 				myGarden[i].Type, myGarden[i].Health)
-			myGarden[i].Water()
+			myGarden[i].Water(&balans)
 		}
 	}
 
 	//Итогоый отчёт после всех изменений
 	fmt.Println("\n--- ИТОГОВЫЙ ОТЧЁТ ЧЕРЕЗ 3 ГОДА ---")
-	PrintGardenReport(myGarden)
+	currentTotal := PrintGardenReport(myGarden)
 
+	profit := currentTotal * pricePerKg
+	fmt.Printf("Мы продали урожай и получили %d руб\n", profit)
+	balans = balans + profit
+	fmt.Printf("У нас в кошельке %d руб", balans)
 	fmt.Println("\nБисмиллягь симляция завершена.")
 }
 
-func PrintGardenReport(garden []Palm) {
+func PrintGardenReport(garden []Palm) int {
 	totalYield := 0
 	for _, p := range garden {
 		current := p.CalculateActualYield()
 		fmt.Printf("Сорт: %-8s | Возраст: %d лет | Здоровье: %d%% | Урожа: %d кг\n",
 			p.Type, p.Age, p.Health, current)
 		totalYield += current
-	}
+		}
 
 	fmt.Printf("ОБЩИЙ УРОЖАЙ САДА: %d кг\n", totalYield)
+	return  totalYield
 }
