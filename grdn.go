@@ -31,13 +31,13 @@ func (p Palm) CalculateActualYield() int {
 	return actualYield
 }
 
-func (p *Palm) Water(balans *int) {
-	if *balans >= 50 {
-		*balans -= 50 
+func (p *Palm) Water(balance *int) {
+	if *balance >= 50 {
+		*balance -= 50 
 		p.Health += 10
-		fmt.Printf("Вы полили %s за 50 руб. Здоровье: %d%%, Остаток:%d руб\n", p.Type, p.Health, *balans)
+		fmt.Printf("Вы полили %s за 50 руб. Здоровье: %d%%, Остаток:%d руб\n", p.Type, p.Health, *balance)
 	} else {
-		fmt.Printf("!!!Не хватает денег для полива %s (нужно 50, у вас %d)\n", p.Type, *balans)
+		fmt.Printf("!!!Не хватает денег для полива %s (нужно 50, у вас %d)\n", p.Type, *balance)
 	}
 	
 
@@ -58,7 +58,7 @@ func PassYear(garden []Palm) {
 
 func main() {
 
-	balans := 0
+	balance := 0
 	pricePerKg := 10
 	
 	fmt.Println("--- Добро пожаловать в твой Сад в Медине ---")
@@ -86,7 +86,7 @@ func main() {
 		if myGarden[i].Health < 50 {
 			fmt.Printf("!!! Дерево %s ослабло (Health: %d%%). Срочно поливаем!\n",
 				myGarden[i].Type, myGarden[i].Health)
-			myGarden[i].Water(&balans)
+			myGarden[i].Water(&balance)
 		}
 	}
 
@@ -96,8 +96,8 @@ func main() {
 
 	profit := currentTotal * pricePerKg
 	fmt.Printf("Мы продали урожай и получили %d руб\n", profit)
-	balans = balans + profit
-	fmt.Printf("У нас в кошельке %d руб", balans)
+	balance = balance + profit
+	fmt.Printf("У нас в кошельке %d руб", balance)
 	fmt.Println("\nБисмиллягь симляция завершена.")
 }
 
