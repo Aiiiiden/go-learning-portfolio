@@ -2,13 +2,13 @@ package main
 
 import (
 	"fmt"
+	"os"
 )
 
 func main() {
 
-	balance := 0
-	skill := 1
-	gardenHealth := 100
+	balance, skill, gardenHealth := loadGame() 
+	
 	showGreetings()
 
 	for {
@@ -38,6 +38,7 @@ func main() {
 		case 5:
 			balance, gardenHealth = fertilizeGarden(balance, gardenHealth)
 		case 0:
+			saveGame(balance, skill, gardenHealth)
 			fmt.Println("Завершение работы... До свидания!")
 			return // Это слово полностью остановит функцию main и выйдет из программы
 		default:
@@ -48,6 +49,23 @@ func main() {
 
 func showGreetings() {
 	fmt.Println("Добро пожаловать в систеу управления садом, Амир!")
+}
+
+func loadGame() (int, int, int) {
+    // Читаем файл
+    data, err := os.ReadFile("save.txt")
+    
+    // Если файла нет (первый запуск), возвращаем стандартные значения
+    if err != nil {
+        return 0, 1, 100 
+    }
+
+    var b, s, h int
+    // Вытаскиваем числа из прочитанных данных
+    fmt.Sscanf(string(data), "%d %d %d", &b, &s, &h)
+    
+    fmt.Println(">>> Прогресс успешно загружен!")
+    return b, s, h
 }
 
 func sellDates(balance int, skill int, health int) (int, int) {
@@ -96,15 +114,15 @@ func calculateIncome() {
 }
 
 func payTaxes(balance int, health int) int {
-    if balance >= 1000 { 
-        if health <= 20 {
-            fmt.Println("Послабление: Закят не взымается из-за плохого состояния сада.")
-            return balance
-        }
-        balance = balance - (balance / 10)
-        fmt.Println("Вы выплатили Закят/Налог на развитие сада.")
-    }
-    return balance
+	if balance >= 1000 {
+		if health <= 20 {
+			fmt.Println("Послабление: Закят не взымается из-за плохого состояния сада.")
+			return balance
+		}
+		balance = balance - (balance / 10)
+		fmt.Println("Вы выплатили Закят/Налог на развитие сада.")
+	}
+	return balance
 }
 
 func fertilizeGarden(balance int, health int) (int, int) {
@@ -114,5 +132,19 @@ func fertilizeGarden(balance int, health int) (int, int) {
 	} else {
 		fmt.Println(">>>Недостаточно средств для ухода за садом!")
 		return balance, health
+	}
+}
+
+func saveGame(balance int, skill int, health int) {
+	//создаем строку и наших данных
+	data := fmt.Sprintf("%d %d %d", balance, skill, health)
+	//записываем ее в текстовы файл
+	//0644 - это права доступа стандарт для файлов
+	err := os.WriteFile("save.txt", []byte(data), 0644)
+
+	if err != nil {
+		fmt.Println("Ошибка при схранении:", err)
+	} else {
+		fmt.Println(">>> Прогресс сохранен в файл!")
 	}
 }
