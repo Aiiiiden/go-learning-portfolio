@@ -7,7 +7,7 @@ import (
 
 func main() {
 
-	balance, skill, gardenHealth := loadGame() 
+	balance, skill, gardenHealth, totalSales := loadGame() 
 	
 	showGreetings()
 
@@ -29,8 +29,10 @@ func main() {
 		case 1:
 			balance, gardenHealth = sellDates(balance, skill, gardenHealth)
 			balance = payTaxes(balance, gardenHealth)
+			totalSales++
 		case 2:
 			printBalance(balance)
+			fmt.Printf("Всего совершено продаж: %d\n", totalSales)
 		case 3:
 			balance, skill = invest(balance, skill)
 		case 4:
@@ -38,7 +40,7 @@ func main() {
 		case 5:
 			balance, gardenHealth = fertilizeGarden(balance, gardenHealth)
 		case 0:
-			saveGame(balance, skill, gardenHealth)
+			saveGame(balance, skill, gardenHealth, totalSales)
 			fmt.Println("Завершение работы... До свидания!")
 			return // Это слово полностью остановит функцию main и выйдет из программы
 		default:
@@ -51,21 +53,21 @@ func showGreetings() {
 	fmt.Println("Добро пожаловать в систеу управления садом, Амир!")
 }
 
-func loadGame() (int, int, int) {
+func loadGame() (int, int, int, int) {
     // Читаем файл
     data, err := os.ReadFile("save.txt")
     
     // Если файла нет (первый запуск), возвращаем стандартные значения
     if err != nil {
-        return 0, 1, 100 
+        return 0, 1, 100, 0
     }
 
-    var b, s, h int
+    var b, s, h, t int
     // Вытаскиваем числа из прочитанных данных
-    fmt.Sscanf(string(data), "%d %d %d", &b, &s, &h)
+    fmt.Sscanf(string(data), "%d %d %d %d", &b, &s, &h, &t)
     
     fmt.Println(">>> Прогресс успешно загружен!")
-    return b, s, h
+    return b, s, h, t
 }
 
 func sellDates(balance int, skill int, health int) (int, int) {
@@ -135,9 +137,9 @@ func fertilizeGarden(balance int, health int) (int, int) {
 	}
 }
 
-func saveGame(balance int, skill int, health int) {
+func saveGame(balance int, skill int, health int, total int) {
 	//создаем строку и наших данных
-	data := fmt.Sprintf("%d %d %d", balance, skill, health)
+	data := fmt.Sprintf("%d %d %d %d", balance, skill, health, total)
 	//записываем ее в текстовы файл
 	//0644 - это права доступа стандарт для файлов
 	err := os.WriteFile("save.txt", []byte(data), 0644)
