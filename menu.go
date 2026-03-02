@@ -2,17 +2,22 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"os"
+	"time"
 )
 
 func main() {
 
-	balance, skill, gardenHealth, totalSales := loadGame() 
-	
+	balance, skill, gardenHealth, totalSales := loadGame()
+	rand.Seed(time.Now().UnixNano())
 	showGreetings()
+	marketPrice := 100
 
 	for {
 		fmt.Println("\n--- МЕНЮ УПРАВЛЕНИЯ ---")
+		marketPrice = 100 + (rand.Intn(41) - 20)
+		fmt.Printf("ТЕКУЩАЯ РЫНОЧНАЯ ЦЕНА: %d руб. за порцию\n", marketPrice)
 		fmt.Println("1. Зарабоок")
 		fmt.Println("2. Проверить кошелек")
 		fmt.Println("3. Рискованные инвестиции")
@@ -27,7 +32,8 @@ func main() {
 
 		switch choice {
 		case 1:
-			balance, gardenHealth = sellDates(balance, skill, gardenHealth)
+			currentProfitPerSale := marketPrice*skill
+			balance, gardenHealth = sellDates(balance, currentProfitPerSale, gardenHealth)
 			balance = payTaxes(balance, gardenHealth)
 			totalSales++
 		case 2:
@@ -54,25 +60,38 @@ func showGreetings() {
 }
 
 func loadGame() (int, int, int, int) {
-    // Читаем файл
-    data, err := os.ReadFile("save.txt")
-    
-    // Если файла нет (первый запуск), возвращаем стандартные значения
-    if err != nil {
-        return 0, 1, 100, 0
-    }
+	// Читаем файл
+	data, err := os.ReadFile("save.txt")
 
-    var b, s, h, t int
-    // Вытаскиваем числа из прочитанных данных
-    fmt.Sscanf(string(data), "%d %d %d %d", &b, &s, &h, &t)
-    
-    fmt.Println(">>> Прогресс успешно загружен!")
-    return b, s, h, t
+	// Если файла нет (первый запуск), возвращаем стандартные значения
+	if err != nil {
+		return 0, 1, 100, 0
+	}
+
+	var b, s, h, t int
+	// Вытаскиваем числа из прочитанных данных
+	fmt.Sscanf(string(data), "%d %d %d %d", &b, &s, &h, &t)
+
+	fmt.Println(">>> Прогресс успешно загружен!")
+	return b, s, h, t
 }
 
 func sellDates(balance int, skill int, health int) (int, int) {
-	profit := 100 * skill
-	if health < 50 {
+	profit := skill
+	event := rand.Intn(10)
+
+	if event == 0 {
+		fmt.Println("БЛАГОДАТЬ: Сугодняотличная погода, финики проданы дороже (х2)")
+		profit = profit * 2
+	} else if event == 1 {
+		fmt.Println("ИСПЫТАНИЯ: Налетели вредители,часть урожая потеряна (х0.5)")
+		profit = profit / 2
+	}
+
+	if health == 0 {
+		fmt.Println("КОТОСТРОФА: Сад полностью засох вы ничего не собрали!")
+		profit = 0
+	} else if health < 50 {
 		fmt.Println("!!! Сад истощен, урожай скудный.")
 		profit = profit / 2
 	}
