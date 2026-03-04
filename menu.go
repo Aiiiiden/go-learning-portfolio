@@ -32,8 +32,7 @@ func main() {
 
 		switch choice {
 		case 1:
-			currentProfitPerSale := marketPrice*skill
-			balance, gardenHealth = sellDates(balance, currentProfitPerSale, gardenHealth)
+			balance, gardenHealth = sellDates(balance, skill, gardenHealth, marketPrice)
 			balance = payTaxes(balance, gardenHealth)
 			totalSales++
 		case 2:
@@ -76,8 +75,8 @@ func loadGame() (int, int, int, int) {
 	return b, s, h, t
 }
 
-func sellDates(balance int, skill int, health int) (int, int) {
-	profit := skill
+func sellDates(balance int, skill int, health int, price int) (int, int) {
+	profit := price * skill
 	event := rand.Intn(10)
 
 	if event == 0 {
@@ -100,7 +99,7 @@ func sellDates(balance int, skill int, health int) (int, int) {
 	if newhealth < 0 {
 		newhealth = 0
 	}
-	fmt.Printf(">>> Вы продали финики (Уровень %d, Здоровье сада %d%%)! Доход %d руб.\n", skill, health, profit)
+	fmt.Printf(">>> Вы продали финики (Уровень %d, Здоровье сада %d%%)! Цена за ед.: %d руб. Доход %d руб.\n", skill, health, price, profit)
 	return balance + profit, newhealth
 }
 
