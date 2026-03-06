@@ -76,31 +76,57 @@ func loadGame() (int, int, int, int) {
 }
 
 func sellDates(balance int, skill int, health int, price int) (int, int) {
+	fmt.Println("\n--- ВЫБОР СОРТА ДЛЯ СБОРА ---")
+	fmt.Println("1. Обычные (Стандартный дохо, износ -10%)")
+	fmt.Println("2. Меджул (Доход х3, износ -35%!)")
+	fmt.Println("3. Дикие (Доход почти 0, ЛЕЧИТ САД +5%)")
+	fmt.Print("ВАШ ВЫБОР:")
+
+	var cropChoice int
+	fmt.Scan(&cropChoice)
+	
 	profit := price * skill
+	wear := 10
+
+	switch cropChoice {
+	case 1:
+		fmt.Println(">>>Сщбираем обычные финики...")
+	case 2:
+		fmt.Println(">>>РИСК! Собираем элитный Меджул...")
+		profit = profit * 3
+		wear = 35
+	case 3:
+		fmt.Println(">>> Забота о саде: собираем дикие финики...")
+		profit = 10
+		wear = -5
+	default:
+		fmt.Println("Неверный выбор собираем как обычно.")
+	}
+
 	event := rand.Intn(10)
 
 	if event == 0 {
-		fmt.Println("БЛАГОДАТЬ: Сугодняотличная погода, финики проданы дороже (х2)")
-		profit = profit * 2
+		fmt.Println("БЛАГОДАТЬ: Сегодня отличная погода, финики проданы дороже (х2)")
+		profit *= 2
 	} else if event == 1 {
 		fmt.Println("ИСПЫТАНИЯ: Налетели вредители,часть урожая потеряна (х0.5)")
-		profit = profit / 2
+		profit /= 2
 	}
 
-	if health == 0 {
+	if health <= 0 {
 		fmt.Println("КОТОСТРОФА: Сад полностью засох вы ничего не собрали!")
 		profit = 0
-	} else if health < 50 {
+	} else if health < 50 && cropChoice != 3 {
 		fmt.Println("!!! Сад истощен, урожай скудный.")
-		profit = profit / 2
+		profit /= 2
 	}
 
-	newhealth := health - 10
-	if newhealth < 0 {
-		newhealth = 0
-	}
-	fmt.Printf(">>> Вы продали финики (Уровень %d, Здоровье сада %d%%)! Цена за ед.: %d руб. Доход %d руб.\n", skill, health, price, profit)
-	return balance + profit, newhealth
+	newHealth := health - wear
+	if newHealth > 100 {newHealth = 100}
+	if newHealth < 0   {newHealth = 0}
+
+	fmt.Printf(">>> Итог: Доход %d руб. Здоровье сада теперь: %d%%\n", profit, newHealth)
+	return balance + profit, newHealth
 }
 
 func printBalance(currentBalance int) {
